@@ -2,7 +2,7 @@ import {exampleActionType } from '../actionTypes/exampleActionTypes'
 import {exampleAction} from '../actionTypes/exampleInterface'
 import produce from 'immer'
 
-interface RepositoriesState {
+export interface RepositoriesState {
     loading: boolean;
     error: string | null;
     data: string[];

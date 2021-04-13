@@ -3,13 +3,13 @@ import {requestActionTypes} from '../actionTypes/requestActionTypes'
 import {requestAction} from '../actionTypes/requestInterface'
 import {pathJoin} from '../utils/pathJoin'
 import {config} from '../../../config/config'
-import { access } from 'node:fs'
-import { getJSDocTemplateTag } from 'typescript'
+import {RootState} from '../../index'
+import {REQUEST_EXCEPTION} from '../actionTypes/requestActionTypes'
 
 /**
  * @Handler
  */
-function* handleRequests(action: requestAction){
+function* handleRequests(action: requestAction): Generator{
     const {type, payload } = action
     const {url, successAction, failureAction, data} = payload
 
@@ -21,8 +21,8 @@ function* handleRequests(action: requestAction){
     let locale = null
 
     if(requestParams[0] === 'AUTHED'){
-        accessToken = yield select(state => state.user.acccess_token)
-
+        accessToken = yield select((state:RootState) => state)
+        
     }
     
     let body = data.body
@@ -35,7 +35,7 @@ function* handleRequests(action: requestAction){
             url: apiUrl,
             formData: body,
             queryParams,
-            accessToken,
+            accessToken
         })
         yield put({type: successAction, payload: response})
     }catch(e){

@@ -5,7 +5,7 @@ import {exampleActionType} from '../actionTypes/exampleActionTypes'
 /**
  * @Handlers
  */
-function* handleSearchRepositories(){
+function* handleSearchRepositories():Generator{
     console.log('this is a temporary test')
 }
 
