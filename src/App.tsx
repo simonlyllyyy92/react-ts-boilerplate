@@ -1,6 +1,6 @@
 import { Provider } from 'react-redux';
-import { store } from '../store';
-import RespositoriesList from './RepositoriesList';
+import { store } from './store';
+import RespositoriesList from './views/repositories/RepositoriesList';
 
 function App() {
   return (

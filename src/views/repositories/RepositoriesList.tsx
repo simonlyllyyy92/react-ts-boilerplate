@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useActions } from '../hooks/useActions';
-import { useTypedSelector } from '../hooks/useTypeSelector';
+import { useActions } from './hooks/useActions';
+import { useTypedSelector } from './hooks/useTypeSelector';
 
 const RepositoriesList: React.FC = () => {
   const [term, setTerm] = useState('');
