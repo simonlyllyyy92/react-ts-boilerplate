@@ -1,0 +1,388 @@
+import { fork, takeLatest, put, select } from "redux-saga/effects"
+import { ActionTypes } from "./actionTypes"
+import axios from "axios"
+
+function* handlePostProUserLogin(action) {
+  let uc_ticket = yield select(state => state.loginReducer.uc_ticket.data)
+  try {
+    const proUserLoginResponse = yield axios.post(
+      "/api/-/x/pro/v1/users/login",
+      { ticket: uc_ticket.ticket },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5"
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.POST_PRO_USER_LOGIN_SUCCESS,
+      payload: proUserLoginResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetWalletOTCBalance(action) {
+  let accessToken = yield select(state => state.loginReducer.fiat_token.data)
+  try {
+    const otcBalanceResponse = yield axios.get(
+      "/api/-/x/otc/v1/capital/balance",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: accessToken.data //法币登陆返回的token
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_WALLET_OTC_BALANCE_SUCCESS,
+      payload: otcBalanceResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetWalletExchangeBalance(action) {
+  let accessToken = yield select(state => state.walletReducer.proUserLogin.data) //此处需要uc_token
+  try {
+    const exchangeBalanceResponse = yield axios.get(
+      "/api/-/x/pro/v1/account/spot-account/balance",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5",
+          "hb-pro-token": accessToken.token
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_WALLET_EXCHANGE_BALANCE_SUCCESS,
+      payload: exchangeBalanceResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handlePostTransferBalance(action) {
+  let accessToken = yield select(state => state.walletReducer.proUserLogin.data) //此处需要uc_token
+  try {
+    const transferBalanceResponse = yield axios.post(
+      "/api/-/x/pro/v1/otc/transfer",
+      action.payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5",
+          "hb-pro-token": accessToken.token
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.POST_TRANSFER_BALANCE_SUCCESS,
+      payload: transferBalanceResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetBalanceHistory(action) {
+  let accessToken = yield select(state => state.loginReducer.fiat_token.data)
+  let page = action.payload || 1
+  try {
+    const balanceHistoryResponse = yield axios.get(
+      `/api/-/x/otc/v1/capital/balance-list?currPage=${page}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: accessToken.data //法币登陆返回的token
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_BALANCE_HISTORY_SUCCESS,
+      payload: balanceHistoryResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetFinanceHistory(action) {
+  let accessToken = yield select(state => state.walletReducer.proUserLogin.data) //此处需要uc_token
+  let { types, from, direct } = action.payload
+  let params = {
+    types: types,
+    size: 11
+  }
+  if (from) {
+    params = { ...params, from: from }
+  }
+  if (direct) {
+    params = { ...params, direct: direct }
+  }
+
+  try {
+    const financeHistoryResponse = yield axios.get(
+      "/api/-/x/pro/v1/query/finances",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5",
+          "hb-pro-token": accessToken.token
+        },
+        params: params
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_FINANCE_HISTORY_SUCCESS,
+      payload: financeHistoryResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetChainsList(action) {
+  try {
+    const getChainsListResponse = yield axios.get(
+      "/api/-/x/pro/v1/settings/chains?currency=usdt",
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5"
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_CHAINS_LIST_SUCCESS,
+      payload: getChainsListResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetCoinAddress(action) {
+  let accessToken = yield select(state => state.walletReducer.proUserLogin.data) //此处需要uc_token
+  let { chain } = action.payload
+  try {
+    const getCoinAddressResponse = yield axios.get(
+      `/api/-/x/pro/v1/dw/deposit-virtual/addresses?currency=usdt&chain=${chain}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5",
+          "hb-pro-token": accessToken.token
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_COIN_ADDRESS_SUCCESS,
+      payload: getCoinAddressResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handleGetPreWithdraw(action) {
+  let accessToken = yield select(state => state.walletReducer.proUserLogin.data) //此处需要uc_token
+  let { chain } = action.payload
+  try {
+    const getPreWithdrawResponse = yield axios.get(
+      `/api/-/x/pro/v1/dw/withdraw/get-prewithdraw?currency=usdt&chain=${chain}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "hb-api-version": "1.5",
+          "hb-pro-token": accessToken.token
+        }
+      }
+    )
+
+    yield put({
+      type: ActionTypes.GET_PRE_WITHDRAW_SUCCESS,
+      payload: getPreWithdrawResponse
+    })
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* handlePostWithdraw(action) {
+  let accessToken = yield select(state => state.walletReducer.proUserLogin.data) //此处需要uc_token
+  let { sms_code, email_code } = action.payload
+  let proHeaders = {
+    "Content-Type": "application/json",
+    "hb-api-version": "1.5",
+    "hb-pro-token": accessToken.token
+  }
+
+  try {
+    const postCheckLimitResponse = yield axios.post(
+      "/api/-/x/pro/v1/dw/withdraw/check-limit",
+      action.payload,
+      {
+        headers: proHeaders
+      }
+    )
+
+    if (postCheckLimitResponse.data.status === "ok") {
+      accessToken = yield select(state => state.loginReducer.uc_token.data) //此处需要uc_token
+      let payload = { use_type: "VERIFY_SETTING_POLICY_WITHDRAW" }
+
+      if (sms_code) {
+        payload = { ...payload, sms_code: sms_code }
+      }
+
+      if (email_code) {
+        payload = { ...payload, email_code: email_code }
+      }
+
+      try {
+        const verifyCodeResponse = yield axios.post(
+          "/api/-/x/uc/uc/open/security/strategy/verify",
+          payload,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "hb-uc-token": accessToken.uc_token // uc_token
+            }
+          }
+        )
+
+        if (verifyCodeResponse.data.code === 200) {
+          let withdrawPayload = {
+            ...action.payload,
+            token: verifyCodeResponse.data.data.token
+          }
+          try {
+            const createWithdrawResponse = yield axios.post(
+              "/api/-/x/pro/v1/dw/withdraw/create",
+              withdrawPayload,
+              {
+                headers: proHeaders
+              }
+            )
+            console.log("create withdraw res", createWithdrawResponse)
+            if (createWithdrawResponse.data.status === "ok") {
+              let withdrawId = createWithdrawResponse.data.data
+              try {
+                const placeWithdrawResponse = yield axios.post(
+                  `/api/-/x/pro/v1/dw/withdraw-virtual/${withdrawId}/place`,
+                  {},
+                  {
+                    headers: proHeaders
+                  }
+                )
+
+                console.log("place withdraw res", placeWithdrawResponse)
+                yield put({
+                  type: ActionTypes.POST_WITHDRAW_SUCCESS,
+                  payload: placeWithdrawResponse
+                })
+              } catch (exception) {
+                console.log("exception from request sage", exception)
+              }
+            } else {
+              yield put({
+                type: ActionTypes.POST_WITHDRAW_SUCCESS,
+                payload: createWithdrawResponse
+              })
+            }
+          } catch (exception) {
+            console.log("exception from request sage", exception)
+          }
+        } else {
+          yield put({
+            type: ActionTypes.POST_WITHDRAW_SUCCESS,
+            payload: verifyCodeResponse
+          })
+        }
+      } catch (exception) {
+        console.log("exception from request sage", exception)
+      }
+    } else {
+      yield put({
+        type: ActionTypes.POST_WITHDRAW_SUCCESS,
+        payload: postCheckLimitResponse
+      })
+    }
+  } catch (exception) {
+    console.log("exception from request sage", exception)
+  }
+}
+
+function* watchPostProUserLogin() {
+  yield takeLatest(ActionTypes.POST_PRO_USER_LOGIN, handlePostProUserLogin)
+}
+
+function* watchGetWalletBalance() {
+  yield takeLatest(
+    ActionTypes.GET_WALLET_OTC_BALANCE,
+    handleGetWalletOTCBalance
+  )
+}
+
+function* watchGetWalletExchangeBalance() {
+  yield takeLatest(
+    ActionTypes.GET_WALLET_EXCHANGE_BALANCE,
+    handleGetWalletExchangeBalance
+  )
+}
+
+function* watchPostTransferBalance() {
+  yield takeLatest(ActionTypes.POST_TRANSFER_BALANCE, handlePostTransferBalance)
+}
+
+function* watchGetBalanceHistory() {
+  yield takeLatest(ActionTypes.GET_BALANCE_HISTORY, handleGetBalanceHistory)
+}
+
+function* watchGetFinanceHistory() {
+  yield takeLatest(ActionTypes.GET_FINANCE_HISTORY, handleGetFinanceHistory)
+}
+
+function* watchGetChainsList() {
+  yield takeLatest(ActionTypes.GET_CHAINS_LIST, handleGetChainsList)
+}
+
+function* watchGetCoinAddress() {
+  yield takeLatest(ActionTypes.GET_COIN_ADDRESS, handleGetCoinAddress)
+}
+
+function* watchGetPreWithdraw() {
+  yield takeLatest(ActionTypes.GET_PRE_WITHDRAW, handleGetPreWithdraw)
+}
+
+function* watchPostWithdraw() {
+  yield takeLatest(ActionTypes.POST_WITHDRAW, handlePostWithdraw)
+}
+
+const sagas = [
+  fork(watchPostProUserLogin),
+  fork(watchGetWalletBalance),
+  fork(watchGetWalletExchangeBalance),
+  fork(watchPostTransferBalance),
+  fork(watchGetBalanceHistory),
+  fork(watchGetFinanceHistory),
+  fork(watchGetChainsList),
+  fork(watchGetCoinAddress),
+  fork(watchGetPreWithdraw),
+  fork(watchPostWithdraw)
+]
+
+export default sagas
