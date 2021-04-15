@@ -16,6 +16,7 @@ import { RootState } from '../../index'
 import { REQUEST_EXCEPTION } from '../actionTypes/requestActionTypes'
 import { httpFetch } from '../utils/httpFetch'
 import { AnyAction, Dispatch } from 'redux'
+import { AxiosResponse } from "axios";
 
 /**
  * @Handler
@@ -24,10 +25,10 @@ function* handleRequests(
   action: requestAction
 ): Generator<
   | SelectEffect
-  | CallEffect<void>
+  | CallEffect<AxiosResponse>
   | PutEffect<
       | {
-          type: Dispatch<AnyAction>
+          type: any
           payload: any
         }
       | { type: requestActionTypes }
@@ -37,7 +38,6 @@ function* handleRequests(
 > {
   const { type, payload } = action
   const { url, successAction, failureAction, data } = payload
-
   // Request should always follow AUTH_METHOD_REQUEST format
   const requestParams: string[] = type.split('_')
   const requestMethod: string = requestParams[1]

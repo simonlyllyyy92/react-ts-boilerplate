@@ -21,9 +21,11 @@ const reducer = produce((state: RepositoriesState = initialState, action: exampl
             return state;
         case exampleActionType.SEARCH_REPOSITORIES_SUCCESS:
             state.data=action.payload;
+            state.loading=false;
             return state;
         case exampleActionType.SEARCH_REPOSITORIES_ERROR:
             state.error = action.payload;
+            state.loading=false;
             return state;
         default: 
             return state;
