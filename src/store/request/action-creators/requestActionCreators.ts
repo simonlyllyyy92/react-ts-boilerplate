@@ -1,8 +1,8 @@
-import {requestAction, httpRequest} from '../actionTypes/requestInterface'
+import {requestAction, httpRequest, httpRequestPayload} from '../actionTypes/requestInterface'
 import {requestActionTypes} from '../actionTypes/requestActionTypes'
 
 
-export const getAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequest ) => {
+export const getAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequestPayload ) => {
   return createRequestAction({
     domain,
     type: requestActionTypes.AUTHED_GET_REQUEST,
@@ -13,7 +13,8 @@ export const getAuthed = ({ domain, url, successAction, failureAction, data = {}
   });
 };
 
-export const getUnAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequest) => {
+export const getUnAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequestPayload) => {
+  console.log('trigger4')
   return createRequestAction({
     domain,
     type: requestActionTypes.UNAUTHED_GET_REQUEST,
@@ -24,7 +25,7 @@ export const getUnAuthed = ({ domain, url, successAction, failureAction, data = 
   });
 };
 
-export const postAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequest) => {
+export const postAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequestPayload) => {
   return createRequestAction({
     domain,
     type: requestActionTypes.AUTHED_POST_REQUEST,
@@ -35,7 +36,7 @@ export const postAuthed = ({ domain, url, successAction, failureAction, data = {
   });
 };
 
-export const postUnauthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequest) => {
+export const postUnauthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequestPayload) => {
   return createRequestAction({
     domain,
     type: requestActionTypes.UNAUTHED_POST_REQUEST,
@@ -46,7 +47,7 @@ export const postUnauthed = ({ domain, url, successAction, failureAction, data =
   });
 };
 
-export const deleteAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequest) => {
+export const deleteAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequestPayload) => {
   return createRequestAction({
     domain,
     type: requestActionTypes.AUTHED_DELETE_REQUEST,
@@ -57,7 +58,7 @@ export const deleteAuthed = ({ domain, url, successAction, failureAction, data =
   });
 };
 
-export const putAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequest) => {
+export const putAuthed = ({ domain, url, successAction, failureAction, data = {} } : httpRequestPayload) => {
   return createRequestAction({
     domain,
     type: requestActionTypes.AUTHED_PUT_REQUEST,

@@ -1,3 +1,6 @@
+import axios from "axios"
+import { visitFunctionBody } from "typescript"
+
 interface formBodyObj {
   [key: string]: string
 }
@@ -9,7 +12,6 @@ export async function httpFetch(params: any) {
     formData,
     queryParams,
     accessToken,
-    contentType
   } = params
 
   const option = {
@@ -19,7 +21,9 @@ export async function httpFetch(params: any) {
       'Content-Type': 'application/json',
       Authorization: ''
     },
-    cache: 'no-cache'
+    cache: 'no-cache',
+    body:{},
+    params:{}
   }
 
   if (accessToken) {
@@ -29,15 +33,30 @@ export async function httpFetch(params: any) {
     }
   }
 
+  if(formData){
+      option.body = formData
+  }
+
   let endResolvedUrl = url
 
   if (queryParams) {
-    endResolvedUrl = url + '?' + serializeData(queryParams)
+    option.params = queryParams
   }
 
   try {
-    // const fetchPromise = await
-  } catch (e) {}
+  
+    // const fetchPromise = await axios({
+    //     ...option,
+    //     url:endResolvedUrl
+    // })
+
+    const {data} = await axios.get(endResolvedUrl, {
+      params: queryParams
+    })
+    return data
+    } catch (e) {
+        throw new Error(e)
+    }
 }
 
 function serializeData(formBodyObj: formBodyObj) {

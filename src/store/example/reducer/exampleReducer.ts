@@ -20,15 +20,25 @@ const reducer = produce((state: RepositoriesState = initialState, action: exampl
             state.loading = true;
             return state;
         case exampleActionType.SEARCH_REPOSITORIES_SUCCESS:
-            state.data=action.payload;
+            state.data=mapDataToArray(action.payload)
+            state.loading=false;
             return state;
         case exampleActionType.SEARCH_REPOSITORIES_ERROR:
             state.error = action.payload;
+            state.loading=false;
             return state;
         default: 
             return state;
         
     }
 })
+
+//put data map method in redux instead of creating component state
+const mapDataToArray = (payload:any) => {
+    const res = payload.objects.map((result: any) => {
+        return result.package.name;
+    })
+    return res
+}
 
 export default reducer;
